@@ -1,14 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Copy, Check, Clock, Calendar, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
+import hljs from "highlight.js"
+import "highlight.js/styles/github-dark.css" // 导入深色主题样式
 
 // 定义剪贴板数据类型
 interface ClipboardData {
@@ -25,12 +25,12 @@ interface ClipboardData {
 
 // 语言映射表
 const languageMap: Record<string, string> = {
-  plaintext: "text",
+  plaintext: "plaintext",
   html: "html",
   js: "javascript",
-  jsx: "jsx",
+  jsx: "javascript",
   ts: "typescript",
-  tsx: "tsx",
+  tsx: "typescript",
   php: "php",
   go: "go",
   cpp: "cpp",
@@ -53,6 +53,8 @@ export function ClipboardViewer({ data }: { data: ClipboardData }) {
   const [copied, setCopied] = useState(false)
   const [timeLeft, setTimeLeft] = useState("")
   const [hasRead, setHasRead] = useState(false)
+  const [highlightedCode, setHighlightedCode] = useState("")
+  const codeRef = useRef<HTMLElement>(null)
 
   // 格式化日期
   const formatDate = (dateString: string) => {
@@ -65,6 +67,26 @@ export function ClipboardViewer({ data }: { data: ClipboardData }) {
       minute: "2-digit",
     })
   }
+
+  // 高亮代码
+  useEffect(() => {
+    const language = languageMap[data.language] || "plaintext"
+
+    try {
+      if (language === "plaintext") {
+        setHighlightedCode(data.content)
+      } else {
+        const highlighted = hljs.highlight(data.content, {
+          language,
+          ignoreIllegals: true,
+        }).value
+        setHighlightedCode(highlighted)
+      }
+    } catch (error) {
+      console.error("Highlighting error:", error)
+      setHighlightedCode(data.content)
+    }
+  }, [data.content, data.language])
 
   // 计算剩余时间
   useEffect(() => {
@@ -112,6 +134,31 @@ export function ClipboardViewer({ data }: { data: ClipboardData }) {
       // 在实际应用中，这里会发送请求到服务器标记为已读
     }
   }, [data.burnAfterReading, hasRead])
+
+  // 添加行号
+  const codeWithLineNumbers = () => {
+    const lines = data.content.split("\n")
+    return (
+      <div className="flex">
+        <div className="text-right pr-4 select-none text-gray-500 bg-zinc-900 pt-6 pb-6">
+          {lines.map((_, i) => (
+            <div key={i} className="leading-relaxed">
+              {i + 1}
+            </div>
+          ))}
+        </div>
+        <div className="overflow-auto w-full">
+          <pre className="pt-6 pb-6">
+            <code
+              ref={codeRef}
+              className={`language-${languageMap[data.language] || "plaintext"}`}
+              dangerouslySetInnerHTML={{ __html: highlightedCode }}
+            />
+          </pre>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <Card className="shadow-lg">
@@ -167,19 +214,7 @@ export function ClipboardViewer({ data }: { data: ClipboardData }) {
                 </Button>
               </div>
 
-              <SyntaxHighlighter
-                language={languageMap[data.language] || "text"}
-                style={tomorrow}
-                customStyle={{
-                  margin: 0,
-                  borderRadius: "0.375rem",
-                  fontSize: "0.9rem",
-                  padding: "1.5rem",
-                }}
-                showLineNumbers
-              >
-                {data.content}
-              </SyntaxHighlighter>
+              <div className="bg-zinc-950 text-zinc-100 overflow-x-auto font-mono text-sm">{codeWithLineNumbers()}</div>
             </div>
           </TabsContent>
 
