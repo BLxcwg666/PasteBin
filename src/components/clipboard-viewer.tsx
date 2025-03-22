@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Copy, Check, Clock, Calendar, AlertTriangle } from "lucide-react"
-import { cn } from "@/lib/utils"
 import hljs from "highlight.js"
 import "highlight.js/styles/github-dark.css" // 导入深色主题样式
 
@@ -238,9 +237,7 @@ export function ClipboardViewer({ data }: { data: ClipboardData }) {
                   </>
                 )}
               </Button>
-              <pre className={cn("p-6 rounded-md border bg-muted/50 overflow-auto", "text-sm font-mono")}>
-                {data.content}
-              </pre>
+              <pre className="p-6 rounded-md border bg-muted/50 overflow-auto text-sm font-mono">{data.content}</pre>
             </div>
           </TabsContent>
         </Tabs>
