@@ -83,7 +83,6 @@ export function ClipboardForm() {
                 placeholder="请输入标题"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                required
               />
             </div>
           </div>
@@ -133,7 +132,7 @@ export function ClipboardForm() {
             </div>
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="mt-4">
           <Button type="submit" className="w-full" disabled={isSubmitting || isSuccess}>
             {isSubmitting ? (
               <>
