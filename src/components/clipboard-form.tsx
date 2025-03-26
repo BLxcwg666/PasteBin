@@ -1,62 +1,80 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Check } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 const languages = [
-  { value: "plaintext", label: "Plain Text" },
-  { value: "html", label: "HTML" },
-  { value: "js", label: "JavaScript" },
-  { value: "ts", label: "TypeScript" },
-  { value: "php", label: "PHP" },
-  { value: "go", label: "Go" },
-  { value: "cpp", label: "C++" },
-  { value: "c", label: "C" },
-  { value: "python", label: "Python" },
+  { value: "1", label: "Plain Text" },
+  { value: "2", label: "HTML" },
+  { value: "3", label: "JavaScript" },
+  { value: "4", label: "TypeScript" },
+  { value: "5", label: "PHP" },
+  { value: "6", label: "Go" },
+  { value: "7", label: "C++" },
+  { value: "8", label: "C" },
+  { value: "9", label: "Python" },
 ]
 
 const retentionOptions = [
-  { value: "5min", label: "5 分钟" },
-  { value: "10min", label: "10 分钟" },
-  { value: "1day", label: "1 天" },
-  { value: "1week", label: "1 周" },
-  { value: "1month", label: "1 个月" },
-  { value: "1year", label: "1 年" },
+  { value: "5m", label: "5 分钟" },
+  { value: "10m", label: "10 分钟" },
+  { value: "1d", label: "1 天" },
+  { value: "1w", label: "1 周" },
+  { value: "1m", label: "1 个月" },
+  { value: "1y", label: "1 年" },
   { value: "burn", label: "阅后即焚" },
 ]
 
 export function ClipboardForm() {
+  const router = useRouter()  // 初始化路由对象
   const [author, setAuthor] = useState("")
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [language, setLanguage] = useState("plaintext")
   const [retention, setRetention] = useState("1day")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch("http://localhost:4000/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          owner: author || "Anonymous",
+          title,
+          content,
+          languageId: language,
+          keeping: retention,
+        }),
+      })
 
-    // Show success message
-    setIsSubmitting(false)
-    setIsSuccess(true)
+      if (!response.ok) {
+        throw new Error("提交失败，请稍后再试")
+      }
 
-    // Reset success message after 3 seconds
-    setTimeout(() => {
-      setIsSuccess(false)
-    }, 3000)
+      const result = await response.json()
+      const { id } = result
+
+      // 跳转到新创建的 Paste 页面
+      router.push(`/pastes/${id}`)
+    } catch (error) {
+      console.error("提交失败:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -133,16 +151,11 @@ export function ClipboardForm() {
           </div>
         </CardContent>
         <CardFooter className="mt-4">
-          <Button type="submit" className="w-full" disabled={isSubmitting || isSuccess}>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 提交中...
-              </>
-            ) : isSuccess ? (
-              <>
-                <Check className="mr-2 h-4 w-4" />
-                提交成功！
               </>
             ) : (
               "创建剪贴板"
