@@ -1,4 +1,5 @@
 import { ClipboardForm } from "@/components/clipboard-form"
+import { Footer } from "@/components/footer"
 
 export default function Home() {
   return (
@@ -8,9 +9,7 @@ export default function Home() {
         <div className="max-w-3xl mx-auto">
           <ClipboardForm />
         </div>
-        <footer className="mt-16 text-center text-sm text-gray-500 dark:text-gray-400">
-          &copy; {new Date().getFullYear()} NekoWorkshop, LLC. All rights reserved.
-        </footer>
+        <Footer />
       </main>
     </div>
   )

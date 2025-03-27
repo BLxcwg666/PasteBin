@@ -27,7 +27,7 @@ interface PasteData {
   owner?: string
   title?: string
   content: string
-  language: string // API 返回的是 language 而不是 languageId
+  language: string
   keeping: string
   createdAt: string
   expiresAt: string
