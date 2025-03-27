@@ -80,11 +80,18 @@ export function ClipboardForm() {
       const data = await response.json()
 
       if (response.ok) {
-        // 保存 token 到 localStorage
         localStorage.setItem(`paste_token_${data.id}`, data.token)
+        
+        const queryParams = new URLSearchParams()
+        if (keeping === "burn" && data.ownerToken) {
+          queryParams.append("ownerToken", data.ownerToken)
+        }
 
-        // 跳转到剪贴板查看页面
-        router.push(`/pastes/${data.id}`)
+        const redirectUrl = queryParams.toString() 
+          ? `/pastes/${data.id}?${queryParams}`
+          : `/pastes/${data.id}`
+
+        router.push(redirectUrl)
       } else {
         setError(data.error || "创建剪贴板失败，请重试")
         setIsSubmitting(false)

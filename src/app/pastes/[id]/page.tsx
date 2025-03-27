@@ -1,20 +1,20 @@
-import { notFound } from "next/navigation"
+"use client"
+
+import { useSearchParams } from "next/navigation"
 import { Footer } from "@/components/footer"
 import { PasteViewer } from "@/components/paste-viewer"
-import type { Metadata, ResolvingMetadata } from "next"
+import { useEffect, useState } from "react"
+import { use } from "react"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
-// 从 API 获取剪贴板数据
-async function getPasteData(id: string) {
+async function fetchPasteData(id: string, ownerToken?: string) {
   try {
-    // 在实际应用中，这里会从 API 获取数据
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pastes/${id}`, {
-      cache: "no-store", // 确保每次都获取最新数据
-    })
+    const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/pastes/${id}`)
+    if (ownerToken) url.searchParams.set("ownerToken", ownerToken)
 
-    if (!response.ok) {
-      return null
-    }
-
+    const response = await fetch(url.toString(), { cache: "no-store" })
+    if (!response.ok) return null
     return await response.json()
   } catch (error) {
     console.error("获取剪贴板数据失败:", error)
@@ -22,43 +22,42 @@ async function getPasteData(id: string) {
   }
 }
 
-interface PageProps {
-  params: Promise<{ id: string }>
-}
+export default function PastePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
 
-// 生成动态元数据
-export async function generateMetadata(
-  { params }: PageProps,
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
-  const { id } = await params
+  const searchParams = useSearchParams()
+  const ownerToken = searchParams.get("ownerToken")
 
-  // 获取数据
-  const pasteData = await getPasteData(id)
+  const [pasteData, setPasteData] = useState<any | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [isNotFound, setIsNotFound] = useState(false) // 404 状态
 
-  // 如果没有找到数据，返回默认标题
-  if (!pasteData) {
-    return {
-      title: "Paste Not Found - Paste Bin",
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchPasteData(id, ownerToken)
+      if (!data) {
+        setIsNotFound(true) // 数据未找到时设置 404
+      } else {
+        setPasteData(data)
+      }
+      setLoading(false)
     }
-  }
+    fetchData()
+  }, [id, ownerToken])
 
-  // 使用剪贴板标题或默认标题
-  const title = pasteData.title ? `${pasteData.title} - Paste Bin` : "Untitled Paste - Paste Bin"
-
-  return {
-    title,
-  }
-}
-
-export default async function PastePage({ params }: PageProps) {
-  const { id } = await params
-
-  // 获取数据
-  const pasteData = await getPasteData(id)
-
-  if (!pasteData) {
-    notFound()
+  if (isNotFound) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+        <div className="text-center">
+          <h1 className="text-6xl font-bold text-gray-900 dark:text-gray-100">404</h1>
+          <h2 className="mt-4 text-2xl font-semibold text-gray-700 dark:text-gray-300">剪贴板未找到</h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">您请求的剪贴板不存在或已过期</p>
+          <Button asChild className="mt-6">
+            <Link href="/">返回首页</Link>
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -73,7 +72,15 @@ export default async function PastePage({ params }: PageProps) {
             返回首页
           </a>
         </div>
-        <PasteViewer id={id} initialData={pasteData} />
+
+        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+          {loading ? (
+            <p className="text-center text-gray-500">加载中...</p>
+          ) : (
+            <PasteViewer id={id} initialData={pasteData} />
+          )}
+        </div>
+
         <Footer />
       </div>
     </div>
