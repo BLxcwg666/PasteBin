@@ -1,4 +1,4 @@
-import { ClipboardForm } from "@/components/clipboard-form"
+import { ClipboardForm } from "@/components/paste-form"
 import { Footer } from "@/components/footer"
 
 export default function Home() {
