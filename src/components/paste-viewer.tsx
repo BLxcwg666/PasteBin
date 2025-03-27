@@ -27,26 +27,24 @@ interface PasteData {
   owner?: string
   title?: string
   content: string
-  languageId: string
+  language: string // API 返回的是 language 而不是 languageId
   keeping: string
   createdAt: string
   expiresAt: string
   burnAfterReading?: boolean
 }
 
-// 语言映射表
+// API 语言名称到 highlight.js 语言标识符的映射
 const languageMap: Record<string, string> = {
-  plaintext: "plaintext",
-  html: "html",
-  js: "javascript",
-  jsx: "javascript",
-  ts: "typescript",
-  tsx: "typescript",
-  php: "php",
-  go: "go",
-  cpp: "cpp",
-  c: "c",
-  python: "python",
+  "Plain Text": "plaintext",
+  HTML: "html",
+  JavaScript: "javascript",
+  TypeScript: "typescript",
+  PHP: "php",
+  Go: "go",
+  "C++": "cpp",
+  C: "c",
+  Python: "python",
 }
 
 // 保留时长映射表
@@ -108,9 +106,14 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
     }
   }
 
+  // 获取 highlight.js 语言标识符
+  const getHighlightLanguage = (apiLanguage: string): string => {
+    return languageMap[apiLanguage] || "plaintext"
+  }
+
   // 高亮代码
   useEffect(() => {
-    const language = languageMap[data.languageId] || "plaintext"
+    const language = getHighlightLanguage(data.language)
 
     try {
       if (language === "plaintext") {
@@ -126,7 +129,7 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
       console.error("Highlighting error:", error)
       setHighlightedCode(data.content)
     }
-  }, [data.content, data.languageId])
+  }, [data.content, data.language])
 
   // 计算剩余时间
   useEffect(() => {
@@ -250,7 +253,7 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
           <pre className="pt-6 pb-6">
             <code
               ref={codeRef}
-              className={`language-${languageMap[data.languageId] || "plaintext"}`}
+              className={`language-${getHighlightLanguage(data.language)}`}
               dangerouslySetInnerHTML={{ __html: highlightedCode }}
             />
           </pre>
