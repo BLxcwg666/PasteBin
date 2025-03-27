@@ -34,7 +34,7 @@ export default function PastePage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchPasteData(id, ownerToken)
+      const data = await fetchPasteData(id, ownerToken ?? undefined)
       if (!data) {
         setIsNotFound(true) // 数据未找到时设置 404
       } else {
