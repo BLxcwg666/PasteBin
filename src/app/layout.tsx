@@ -7,8 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Online Clipboard",
-  description: "Share text and code snippets with customizable retention periods",
+  title: "Paste Bin",
+  description: "A Lite Online Paste Bin",
 }
 
 export default function RootLayout({
