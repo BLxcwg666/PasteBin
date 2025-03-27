@@ -28,11 +28,10 @@ interface PageProps {
 
 // 生成动态元数据
 export async function generateMetadata(
-  { params }: { params: { id: string } },
+  { params }: PageProps,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  // 解析参数
-  const id = params.id
+  const { id } = await params
 
   // 获取数据
   const pasteData = await getPasteData(id)
@@ -53,7 +52,6 @@ export async function generateMetadata(
 }
 
 export default async function PastePage({ params }: PageProps) {
-  // 解析参数
   const { id } = await params
 
   // 获取数据
