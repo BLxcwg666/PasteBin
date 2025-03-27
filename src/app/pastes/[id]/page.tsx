@@ -20,11 +20,15 @@ async function getPasteData(id: string) {
   }
 }
 
-export default async function PastePage({ params }: { params: { id: string } }) {
-  // 先等待 params 对象
-  const resolvedParams = await Promise.resolve(params)
-  const id = resolvedParams.id
+interface PageProps {
+  params: Promise<{ id: string }>
+}
 
+export default async function PastePage({ params }: PageProps) {
+  // 解析参数
+  const { id } = await params
+
+  // 获取数据
   const pasteData = await getPasteData(id)
 
   if (!pasteData) {

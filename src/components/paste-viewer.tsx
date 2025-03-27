@@ -36,15 +36,17 @@ interface PasteData {
 
 // 语言映射表
 const languageMap: Record<string, string> = {
-  "Plain Text": "plaintext",
-  "HTML": "html",
-  "JavaScript": "javascript",
-  "TypeScript": "typescript",
-  "PHP": "php",
-  "Go": "go",
-  "C++": "cpp",
-  "C": "c",
-  "Python": "python",
+  plaintext: "plaintext",
+  html: "html",
+  js: "javascript",
+  jsx: "javascript",
+  ts: "typescript",
+  tsx: "typescript",
+  php: "php",
+  go: "go",
+  cpp: "cpp",
+  c: "c",
+  python: "python",
 }
 
 // 保留时长映射表
@@ -53,8 +55,8 @@ const retentionMap: Record<string, string> = {
   "10m": "10 分钟",
   "1d": "1 天",
   "7d": "1 周",
-  "1m": "1 个月",
-  "1y": "1 年",
+  "30d": "1 个月",
+  "365d": "1 年",
   burn: "阅后即焚",
 }
 
@@ -89,22 +91,29 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
 
   // 格式化日期
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) {
+        return "未知日期"
+      }
+      return date.toLocaleString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    } catch (error) {
+      return "未知日期"
+    }
   }
 
   // 高亮代码
   useEffect(() => {
-    const language = languageMap[data.languageId] || "1"
+    const language = languageMap[data.languageId] || "plaintext"
 
     try {
-      if (language === "1") {
+      if (language === "plaintext") {
         setHighlightedCode(data.content)
       } else {
         const highlighted = hljs.highlight(data.content, {
@@ -122,24 +131,33 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
   // 计算剩余时间
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const now = new Date()
-      const expires = new Date(data.expiresAt)
-      const diff = expires.getTime() - now.getTime()
+      try {
+        const now = new Date()
+        const expires = new Date(data.expiresAt)
 
-      if (diff <= 0) {
-        return "已过期"
-      }
+        if (isNaN(expires.getTime())) {
+          return "未知"
+        }
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+        const diff = expires.getTime() - now.getTime()
 
-      if (days > 0) {
-        return `${days} 天 ${hours} 小时`
-      } else if (hours > 0) {
-        return `${hours} 小时 ${minutes} 分钟`
-      } else {
-        return `${minutes} 分钟`
+        if (diff <= 0) {
+          return "已过期"
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+
+        if (days > 0) {
+          return `${days} 天 ${hours} 小时`
+        } else if (hours > 0) {
+          return `${hours} 小时 ${minutes} 分钟`
+        } else {
+          return `${minutes} 分钟`
+        }
+      } catch (error) {
+        return "未知"
       }
     }
 
@@ -178,7 +196,7 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
     setDeleteError("")
 
     try {
-      const response = await fetch("http://localhost:4000/del", {
+      const response = await fetch("/del", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -232,7 +250,7 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
           <pre className="pt-6 pb-6">
             <code
               ref={codeRef}
-              className={`language-${languageMap[data.languageId] || "1"}`}
+              className={`language-${languageMap[data.languageId] || "plaintext"}`}
               dangerouslySetInnerHTML={{ __html: highlightedCode }}
             />
           </pre>
