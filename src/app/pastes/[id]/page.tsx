@@ -40,7 +40,7 @@ export default async function PastePage({ params }: PageProps) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4">
       <div className="container mx-auto max-w-4xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">剪贴板内容</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Paste Bin</h1>
           <a
             href="/"
             className="inline-flex items-center px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
