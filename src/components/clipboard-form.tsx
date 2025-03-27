@@ -69,7 +69,7 @@ export function ClipboardForm() {
       }
 
       // 发送 API 请求
-      const response = await fetch("http://localhost:4000/add", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

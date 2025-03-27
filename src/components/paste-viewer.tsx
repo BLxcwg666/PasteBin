@@ -199,7 +199,7 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
     setDeleteError("")
 
     try {
-      const response = await fetch("/del", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/del`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
