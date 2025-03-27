@@ -180,18 +180,12 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
   }
 
   // 复制 token 到剪贴板
+  const [isCopied, setIsCopied] = useState(false);
   const copyTokenToClipboard = () => {
-    navigator.clipboard.writeText(token)
-    alert("Token 已复制到剪贴板")
-  }
-
-  // 如果是阅后即焚，标记为已读
-  useEffect(() => {
-    if (data.burnAfterReading && !hasRead) {
-      setHasRead(true)
-      // 在实际应用中，这里会发送请求到服务器标记为已读
-    }
-  }, [data.burnAfterReading, hasRead])
+    navigator.clipboard.writeText(token);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000); // 2秒后恢复
+  };
 
   // 删除剪贴板
   const deletePaste = async (tokenToUse: string) => {
@@ -267,8 +261,8 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
     return (
       <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
         <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
-        <AlertTitle>删除成功</AlertTitle>
-        <AlertDescription>剪贴板已成功删除。</AlertDescription>
+        <AlertTitle className="text-white">删除成功</AlertTitle>
+        <AlertDescription className="text-white">剪贴板已成功删除。</AlertDescription>
       </Alert>
     )
   }
@@ -276,20 +270,24 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
   return (
     <>
       {showToken && (
-        <Alert className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-          <Key className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <AlertTitle>您的访问令牌</AlertTitle>
-          <AlertDescription className="flex items-center gap-2">
-            <span className="font-mono bg-blue-100 dark:bg-blue-900/40 px-2 py-1 rounded text-sm">{token}</span>
+        <Alert className="mb-4 bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800">
+          <Key className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+          <AlertTitle className="text-white">您的删除令牌</AlertTitle>
+          <AlertDescription className="flex items-center gap-2 text-sky-800">
+            <span className="font-mono bg-sky-100 dark:bg-sky-900/40 px-2 py-1 rounded text-sm text-white">{token}</span>
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               onClick={copyTokenToClipboard}
-              className="h-7 text-xs border-blue-200 dark:border-blue-800"
+              className="h-7 text-xs border-sky-200 dark:border-sky-800 text-white"
             >
-              复制
+              {isCopied ? (
+                <Check className="h-4 w-4 text-green-500" />
+              ) : (
+                "复制"
+              )}
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowToken(false)} className="h-7 text-xs ml-auto">
+            <Button variant="default" size="sm" onClick={() => setShowToken(false)} className="h-7 text-xs ml-auto text-white">
               关闭
             </Button>
           </AlertDescription>

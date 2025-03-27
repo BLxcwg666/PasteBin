@@ -171,7 +171,7 @@ export function ClipboardForm() {
 
           {error && <div className="text-sm font-medium text-destructive">{error}</div>}
         </CardContent>
-        <CardFooter>
+        <CardFooter className="mt-4">
           <Button type="submit" className="w-full" disabled={isSubmitting || !content}>
             {isSubmitting ? (
               <>
