@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Copy, Check, Clock, Calendar, AlertTriangle, Trash2, Key, Loader2 } from "lucide-react"
+import { Copy, Check, Clock, Calendar, AlertTriangle, Trash2, Key, Loader2, Code } from "lucide-react"
 import hljs from "highlight.js"
 import "highlight.js/styles/github-dark.css"
 import {
@@ -313,6 +313,10 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
               <Badge variant="secondary" className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
                 剩余时间: {timeLeft}
+              </Badge>
+              <Badge variant="outline" className="flex items-center gap-1 bg-primary/10">
+                <Code className="h-3 w-3" />
+                {data.language}
               </Badge>
               {data.burnAfterReading && (
                 <Badge variant="destructive" className="flex items-center gap-1">
