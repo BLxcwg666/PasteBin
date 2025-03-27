@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const languages = [
   { value: "1", label: "Plain Text" },
@@ -27,52 +28,70 @@ const retentionOptions = [
   { value: "5m", label: "5 分钟" },
   { value: "10m", label: "10 分钟" },
   { value: "1d", label: "1 天" },
-  { value: "1w", label: "1 周" },
+  { value: "7d", label: "1 周" },
   { value: "1m", label: "1 个月" },
   { value: "1y", label: "1 年" },
   { value: "burn", label: "阅后即焚" },
 ]
 
 export function ClipboardForm() {
-  const router = useRouter()  // 初始化路由对象
-  const [author, setAuthor] = useState("")
+  const router = useRouter()
+  const [owner, setOwner] = useState("")
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
-  const [language, setLanguage] = useState("plaintext")
-  const [retention, setRetention] = useState("1day")
+  const [languageId, setLanguageId] = useState("1")
+  const [keeping, setKeeping] = useState("1d")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError("")
 
     try {
+      // 准备提交数据
+      const formData = {
+        owner,
+        title,
+        content,
+        languageId,
+        keeping,
+      }
+
+      // 只有在有值时才添加可选字段
+      if (owner.trim()) {
+        formData["owner"] = owner
+      }
+
+      if (title.trim()) {
+        formData["title"] = title
+      }
+
+      // 发送 API 请求
       const response = await fetch("http://localhost:4000/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          owner: author || "Anonymous",
-          title,
-          content,
-          languageId: language,
-          keeping: retention,
-        }),
+        body: JSON.stringify(formData),
       })
 
-      if (!response.ok) {
-        throw new Error("提交失败，请稍后再试")
+      const data = await response.json()
+
+      if (response.ok) {
+        // 保存 token 到 localStorage
+        localStorage.setItem(`paste_token_${data.id}`, data.token)
+
+        // 跳转到剪贴板查看页面
+        router.push(`/pastes/${data.id}`)
+      } else {
+        setError(data.error || "创建剪贴板失败，请重试")
+        setIsSubmitting(false)
       }
-
-      const result = await response.json()
-      const { id } = result
-
-      // 跳转到新创建的 Paste 页面
-      router.push(`/pastes/${id}`)
-    } catch (error) {
-      console.error("提交失败:", error)
-    } finally {
+    } catch (err) {
+      console.error("提交表单时出错:", err)
+      setError("提交表单时出错，请检查网络连接并重试")
       setIsSubmitting(false)
     }
   }
@@ -86,19 +105,19 @@ export function ClipboardForm() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="author">作者</Label>
+              <Label htmlFor="owner">作者</Label>
               <Input
-                id="author"
-                placeholder="请输入作者名称"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
+                id="owner"
+                placeholder="请输入作者名称（可选）"
+                value={owner}
+                onChange={(e) => setOwner(e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="title">标题</Label>
               <Input
                 id="title"
-                placeholder="请输入标题"
+                placeholder="请输入标题（可选）"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
@@ -120,7 +139,7 @@ export function ClipboardForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="language">语言</Label>
-              <Select value={language} onValueChange={setLanguage}>
+              <Select value={languageId} onValueChange={setLanguageId}>
                 <SelectTrigger id="language">
                   <SelectValue placeholder="选择语言" />
                 </SelectTrigger>
@@ -135,7 +154,7 @@ export function ClipboardForm() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="retention">保留时长</Label>
-              <Select value={retention} onValueChange={setRetention}>
+              <Select value={keeping} onValueChange={setKeeping}>
                 <SelectTrigger id="retention">
                   <SelectValue placeholder="选择保留时长" />
                 </SelectTrigger>
@@ -149,9 +168,11 @@ export function ClipboardForm() {
               </Select>
             </div>
           </div>
+
+          {error && <div className="text-sm font-medium text-destructive">{error}</div>}
         </CardContent>
-        <CardFooter className="mt-4">
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <CardFooter>
+          <Button type="submit" className="w-full" disabled={isSubmitting || !content}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
