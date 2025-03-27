@@ -59,10 +59,9 @@ const retentionMap: Record<string, string> = {
 }
 
 export function PasteViewer({ id, initialData }: { id: string; initialData: PasteData }) {
-  const [data, setData] = useState<PasteData>(initialData)
+  const [data] = useState<PasteData>(initialData)
   const [copied, setCopied] = useState(false)
   const [timeLeft, setTimeLeft] = useState("")
-  const [hasRead, setHasRead] = useState(false)
   const [highlightedCode, setHighlightedCode] = useState("")
   const [showToken, setShowToken] = useState(false)
   const [token, setToken] = useState("")
