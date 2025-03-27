@@ -275,7 +275,7 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
           <AlertDescription className="flex items-center gap-2 text-sky-800">
             <span className="font-mono bg-sky-100 dark:bg-sky-900/40 px-2 py-1 rounded text-sm text-white">{token}</span>
             <Button
-              variant="default"
+              variant="outline"
               size="sm"
               onClick={copyTokenToClipboard}
               className="h-7 text-xs border-sky-200 dark:border-sky-800 text-white"
@@ -286,7 +286,7 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
                 "复制"
               )}
             </Button>
-            <Button variant="default" size="sm" onClick={() => setShowToken(false)} className="h-7 text-xs ml-auto text-white">
+            <Button variant="ghost" size="sm" onClick={() => setShowToken(false)} className="h-7 text-xs ml-auto text-white">
               关闭
             </Button>
           </AlertDescription>
