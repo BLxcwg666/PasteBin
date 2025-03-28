@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Copy, Check, Clock, Calendar, AlertTriangle, Trash2, Key, Loader2, Code } from "lucide-react"
-import hljs from "highlight.js"
-import "highlight.js/styles/github-dark.css"
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import {
   Dialog,
   DialogContent,
@@ -62,7 +62,6 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
   const [data] = useState<PasteData>(initialData)
   const [copied, setCopied] = useState(false)
   const [timeLeft, setTimeLeft] = useState("")
-  const [highlightedCode, setHighlightedCode] = useState("")
   const [showToken, setShowToken] = useState(false)
   const [token, setToken] = useState("")
   const [isDeleting, setIsDeleting] = useState(false)
@@ -111,24 +110,7 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
   }
 
   // 高亮代码
-  useEffect(() => {
-    const language = getHighlightLanguage(data.language)
 
-    try {
-      if (language === "plaintext") {
-        setHighlightedCode(data.content)
-      } else {
-        const highlighted = hljs.highlight(data.content, {
-          language,
-          ignoreIllegals: true,
-        }).value
-        setHighlightedCode(highlighted)
-      }
-    } catch (error) {
-      console.error("Highlighting error:", error)
-      setHighlightedCode(data.content)
-    }
-  }, [data.content, data.language])
 
   // 计算剩余时间
   useEffect(() => {
@@ -232,28 +214,36 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
 
   // 添加行号
   const codeWithLineNumbers = () => {
-    const lines = data.content.split("\n")
     return (
-      <div className="flex">
-        <div className="text-right pr-4 select-none text-gray-500 bg-zinc-900 pt-6 pb-6">
-          {lines.map((_, i) => (
-            <div key={i} className="leading-relaxed">
-              {i + 1}
-            </div>
-          ))}
-        </div>
-        <div className="overflow-auto w-full">
-          <pre className="pt-6 pb-6">
-            <code
-              ref={codeRef}
-              className={`language-${getHighlightLanguage(data.language)}`}
-              dangerouslySetInnerHTML={{ __html: highlightedCode }}
-            />
-          </pre>
-        </div>
-      </div>
+      <SyntaxHighlighter
+        language={getHighlightLanguage(data.language)}
+        style={vscDarkPlus}
+        showLineNumbers
+        wrapLines
+        customStyle={{
+          background: '#0a0a0a',
+          borderRadius: 0,
+          margin: 0,
+          padding: '1rem',
+          flexGrow: 1
+        }}
+        codeTagProps={{
+          style: {
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.875rem'
+          }
+        }}
+        lineNumberStyle={{
+          minWidth: '3.5em',
+          paddingRight: '1em',
+          color: '#71717a',
+          userSelect: 'none'
+        }}
+      >
+        {data.content}
+      </SyntaxHighlighter>
     )
-  }
+}
 
   // 如果删除成功，显示成功信息
   if (deleteSuccess) {
@@ -351,10 +341,14 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
                 </div>
 
                 <div className="bg-zinc-950 text-zinc-100 overflow-x-auto font-mono text-sm">
-                  {codeWithLineNumbers()}
-                </div>
-              </div>
-            </TabsContent>
+          <div className="flex">
+            <div className="overflow-auto w-full">
+              {codeWithLineNumbers()}
+            </div>
+          </div>
+        </div>
+      </div>
+    </TabsContent>
 
             <TabsContent value="raw" className="mt-0">
               <div className="relative">
