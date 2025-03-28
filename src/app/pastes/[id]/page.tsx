@@ -62,7 +62,7 @@ export default function PastePage({ params }: { params: Promise<{ id: string }> 
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4">
-      <div className="container mx-auto max-w-4xl">
+      <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Paste Bin</h1>
           <a
@@ -73,7 +73,7 @@ export default function PastePage({ params }: { params: Promise<{ id: string }> 
           </a>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <div className="p-4">
           {loading ? (
             <p className="text-center text-gray-500">加载中...</p>
           ) : (
