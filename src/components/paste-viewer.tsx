@@ -53,8 +53,8 @@ const retentionMap: Record<string, string> = {
   "10m": "10 分钟",
   "1d": "1 天",
   "7d": "1 周",
-  "30d": "1 个月",
-  "365d": "1 年",
+  "1m": "1 个月",
+  "1y": "1 年",
   burn: "阅后即焚",
 }
 
