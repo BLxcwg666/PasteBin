@@ -109,7 +109,10 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
     return languageMap[apiLanguage] || "plaintext"
   }
 
-  // 高亮代码
+  // 动态标题
+  useEffect(() => {
+    document.title = `${data.title || '无标题'} - Paste Bin`;
+  }, [data.title]);
 
 
   // 计算剩余时间
