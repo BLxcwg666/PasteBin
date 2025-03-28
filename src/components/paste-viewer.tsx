@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Copy, Check, Clock, Calendar, AlertTriangle, Trash2, Key, Loader2, Code } from "lucide-react"
+import { Copy, Check, Clock, Calendar, AlertTriangle, Trash2, Key, Loader2, Code, Share2 } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import {
@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // 定义剪贴板数据类型
 interface PasteData {
@@ -63,6 +64,7 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
   const [copied, setCopied] = useState(false)
   const [timeLeft, setTimeLeft] = useState("")
   const [showToken, setShowToken] = useState(false)
+  const [urlCopied, setUrlCopied] = useState(false)
   const [token, setToken] = useState("")
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState("")
@@ -114,6 +116,13 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
     document.title = `${data.title || '无标题'} - Paste Bin`;
   }, [data.title]);
 
+  // 复制 URL 到剪贴板
+  const copyUrlToClipboard = () => {
+    const url = `${window.location.origin}/pastes/${id}`
+    navigator.clipboard.writeText(url)
+    setUrlCopied(true)
+    setTimeout(() => setUrlCopied(false), 2000)
+  }
 
   // 计算剩余时间
   useEffect(() => {
@@ -290,7 +299,21 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
+            <div className="flex items-center gap-2">
               <CardTitle className="text-2xl">{data.title || "无标题"}</CardTitle>
+              <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={copyUrlToClipboard}>
+                        {urlCopied ? <Check className="h-4 w-4 text-green-600" /> : <Share2 className="h-4 w-4" />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{urlCopied ? "已复制链接" : "分享链接"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <p className="text-sm text-muted-foreground mt-1">
                 由 {data.owner || "匿名用户"} 创建于 {formatDate(data.createdAt)}
               </p>
