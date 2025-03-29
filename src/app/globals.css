@@ -59,6 +59,16 @@
   }
 }
 
+@media (max-width: 640px) {
+  .code-block {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+  .badge-group {
+    margin-left: -0.5rem;
+  }
+}
+
 /* 代码高亮 */
 .hljs {
   background: transparent !important;

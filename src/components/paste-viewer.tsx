@@ -295,9 +295,9 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
         </Alert>
       )}
 
-      <Card className="shadow-lg">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+      <Card className="shadow-lg overflow-hidden">
+        <CardHeader className="pb-4 px-4 sm:px-6">
+          <div className="flex flex-col gap-3">
             <div>
             <div className="flex items-center gap-2">
               <CardTitle className="text-2xl">{data.title || "无标题"}</CardTitle>
