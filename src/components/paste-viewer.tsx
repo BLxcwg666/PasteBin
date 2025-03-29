@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -71,7 +71,6 @@ export function PasteViewer({ id, initialData }: { id: string; initialData: Past
   const [deleteSuccess, setDeleteSuccess] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [customToken, setCustomToken] = useState("")
-  const codeRef = useRef<HTMLElement>(null)
 
   // 检查 localStorage 中是否有 token
   useEffect(() => {
